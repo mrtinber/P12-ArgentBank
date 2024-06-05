@@ -1,8 +1,15 @@
+import { Footer } from './components/Footer'
+import { Navbar } from './components/Navbar'
+import { HomePage } from './pages/HomePage'
+import './scss/main.scss'
+
 function App() {
 
   return (
     <>
-      <p>Hello World</p>
+      <Navbar />
+      <HomePage />
+      <Footer />
     </>
   )
 }
