@@ -3,14 +3,12 @@ import { HomePage } from "../pages/HomePage";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { SignIn } from "../pages/SignIn";
-import { User } from "../pages/User";
+import { UserProfile } from "../pages/UserProfile";
 
 const Layout =() => {
     return <>
         <Navbar />
-        {/* <div className="container"> */}
             <Outlet />
-        {/* </div> */}
         <Footer />
     </>
 }
@@ -26,14 +24,18 @@ const router = createBrowserRouter([
             {
                 path: '',
                 element: <HomePage />
+            },
+            {
+                path: 'index.html',
+                element: <HomePage />
             }, 
             {
-                path: 'signin',
+                path: 'sign-in.html',
                 element: <SignIn />
             }, 
             {
-                path: 'user',
-                element: <User />
+                path: 'profile',
+                element: <UserProfile />
             }
         ]
     }
