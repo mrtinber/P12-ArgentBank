@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react";
 
-const USER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjY2NDFmNTllYWIzMDhiMGViMWI4MiIsImlhdCI6MTcxNzk4OTEwNywiZXhwIjoxNzE4MDc1NTA3fQ.c5XVnKrBTnABW7mP_cUVYWO01NL7gKLVsXib7SiMmPY'
+const USER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjY2NDFmNTllYWIzMDhiMGViMWI4MiIsImlhdCI6MTcxNzk4OTEwNywiZXhwIjoxNzE4MDc1NTA3fQ.c5XVnKrBTnABW7mP_cUVYWO01NL7gKLVsXib7SiMmPY';
 
 export function UserProfile() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [isEditing, setIsEditing] = useState(false)
-    const [error, setError] = useState();
-    const [isLoading, setIsLoading] = useState(false);
+    const [profile, setProfile] = useState({
+        firstName: '',
+        lastName: '',
+    });
+    const [formValues, setFormValues] = useState({
+        firstName: '',
+        lastName: '',
+    });
+    const [isEditing, setIsEditing] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,87 +25,129 @@ export function UserProfile() {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'Authorization': USER_TOKEN,
-                    }
+                    },
                 });
 
-                const data = await response.json()
-                setFirstName(data.body.firstName);
-                setLastName(data.body.lastName);
+                const data = await response.json();
+                setProfile({ firstName: data.body.firstName, lastName: data.body.lastName });
+                setFormValues({ firstName: data.body.firstName, lastName: data.body.lastName });
             } catch (error: any) {
-                setError(error)
+                setError(error);
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
-        }
+        };
 
         fetchData();
-    })
+    }, []);
 
     if (error) {
-        console.log('Oups, il y a une erreur')
+        console.log('Oups, il y a une erreur');
     }
 
-    if (isLoading) {
+    if (isLoading){
         return <div>Loading...</div>
     }
 
-    const handleEdit = async () => {
-        setIsEditing(!isEditing)
-    }
+    const handleEdit = () => {
+        setIsEditing(!isEditing);
+    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log("On change les infos", { firstName, lastName })
-        handleEdit();
-    }
+        try {
+            const response = await fetch('http://localhost:3001/api/v1/user/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': USER_TOKEN,
+                },
+                body: JSON.stringify(formValues),
+            });
 
-    return <main className="main bg-dark">
-        <div className="header">
-            <h1>Welcome back<br />{firstName} {lastName}!</h1>
-            <button className="edit__button" onClick={handleEdit}>Edit Name</button>
-            {isEditing && (
-                <>
-                    <form onSubmit={handleSubmit}>
-                        <label htmlFor="firstName">Prénom</label>
-                        <input type="text" id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                        <label htmlFor="lastName">Nom</label>
-                        <input type="text" id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                        <button type="submit">Save</button>
-                        <button onClick={handleEdit}>Cancel</button>
-                    </form>
-                </>
-            )}
-        </div>
-        <h2 className="sr-only">Accounts</h2>
-        <section className="account">
-            <div className="account__content">
-                <h3 className="account__content__title">Argent Bank Checking (x8349)</h3>
-                <p className="account__content__amount">$2,082.79</p>
-                <p className="account__content__amount__description">Available Balance</p>
+            if (!response.ok) {
+                throw new Error('Erreur lors de la mise à jour du profil');
+            }
+
+            const data = await response.json();
+            setProfile({ firstName: data.body.firstName, lastName: data.body.lastName });
+            setIsEditing(false);
+            console.log('Profil mis à jour avec succès :', data);
+        } catch (error: any) {
+            setError(error);
+        }
+    };
+
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setFormValues({
+            ...formValues,
+            [name]: value,
+        });
+    };
+
+    return (
+        <main className="main bg-dark">
+            <div className="header">
+                <h1>Welcome back<br />{profile.firstName} {profile.lastName}!</h1>
+                <button className="edit__button" onClick={handleEdit}>Edit Name</button>
+                {isEditing && (
+                    <>
+                        <form onSubmit={handleSubmit}>
+                            <label htmlFor="firstName">Prénom</label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                value={formValues.firstName}
+                                onChange={handleChange}
+                            />
+                            <label htmlFor="lastName">Nom</label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                value={formValues.lastName}
+                                onChange={handleChange}
+                            />
+                            <button type="submit">Save</button>
+                            <button type="button" onClick={handleEdit}>Cancel</button>
+                        </form>
+                    </>
+                )}
             </div>
-            <div className="account__content cta">
-                <button className="transaction__button">View transactions</button>
-            </div>
-        </section>
-        <section className="account">
-            <div className="account__content">
-                <h3 className="account__content__title">Argent Bank Savings (x6712)</h3>
-                <p className="account__content__amount">$10,928.42</p>
-                <p className="account__content__amount__description">Available Balance</p>
-            </div>
-            <div className="account__content cta">
-                <button className="transaction__button">View transactions</button>
-            </div>
-        </section>
-        <section className="account">
-            <div className="account__content">
-                <h3 className="account__content__title">Argent Bank Credit Card (x8349)</h3>
-                <p className="account__content__amount">$184.30</p>
-                <p className="account__content__amount__description">Current Balance</p>
-            </div>
-            <div className="account__content cta">
-                <button className="transaction__button">View transactions</button>
-            </div>
-        </section>
-    </main>
+            <h2 className="sr-only">Accounts</h2>
+            <section className="account">
+                <div className="account__content">
+                    <h3 className="account__content__title">Argent Bank Checking (x8349)</h3>
+                    <p className="account__content__amount">$2,082.79</p>
+                    <p className="account__content__amount__description">Available Balance</p>
+                </div>
+                <div className="account__content cta">
+                    <button className="transaction__button">View transactions</button>
+                </div>
+            </section>
+            <section className="account">
+                <div className="account__content">
+                    <h3 className="account__content__title">Argent Bank Savings (x6712)</h3>
+                    <p className="account__content__amount">$10,928.42</p>
+                    <p className="account__content__amount__description">Available Balance</p>
+                </div>
+                <div className="account__content cta">
+                    <button className="transaction__button">View transactions</button>
+                </div>
+            </section>
+            <section className="account">
+                <div className="account__content">
+                    <h3 className="account__content__title">Argent Bank Credit Card (x8349)</h3>
+                    <p className="account__content__amount">$184.30</p>
+                    <p className="account__content__amount__description">Current Balance</p>
+                </div>
+                <div className="account__content cta">
+                    <button className="transaction__button">View transactions</button>
+                </div>
+            </section>
+        </main>
+    );
 }
