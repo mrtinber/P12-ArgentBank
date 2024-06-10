@@ -12,7 +12,7 @@ export function HomePage() {
             <HomePageFeature
                 icon={iconChat}
                 title="You are our #1 priority"
-                text=" Need to talk to a representative? You can get in touch through our
+                text="Need to talk to a representative? You can get in touch through our
                 24/7 chat or through a phone call in less than 5 minutes."
             />
             <HomePageFeature

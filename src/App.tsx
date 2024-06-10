@@ -1,15 +1,11 @@
-import { Footer } from './components/Footer'
-import { Navbar } from './components/Navbar'
-import { HomePage } from './pages/HomePage'
+import { Router } from './components/Router'
 import './scss/main.scss'
 
 function App() {
 
   return (
     <>
-      <Navbar />
-      <HomePage />
-      <Footer />
+      <Router />
     </>
   )
 }
