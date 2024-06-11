@@ -1,83 +1,34 @@
 import { ChangeEvent, useEffect, useState } from "react";
-
-const USER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjY2NDFmNTllYWIzMDhiMGViMWI4MiIsImlhdCI6MTcxNzk4OTEwNywiZXhwIjoxNzE4MDc1NTA3fQ.c5XVnKrBTnABW7mP_cUVYWO01NL7gKLVsXib7SiMmPY';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../app/store";
+import { fetchUserProfile, selectError, selectIsEditing, selectIsLoading, selectUserProfile, setIsEditing, updateUserProfile } from "../features/userProfile/userProfileSlice";
 
 export function UserProfile() {
-    const [profile, setProfile] = useState({
-        firstName: '',
-        lastName: '',
-    });
-    const [formValues, setFormValues] = useState({
-        firstName: '',
-        lastName: '',
-    });
-    const [isEditing, setIsEditing] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-    const [isLoading, setIsLoading] = useState(false)
+    const dispatch = useDispatch<AppDispatch>();
+    const profile = useSelector(selectUserProfile);
+    const isLoading = useSelector(selectIsLoading);
+    const error = useSelector(selectError);
+    const isEditing = useSelector(selectIsEditing);
+    const [formValues, setFormValues] = useState({ firstName: '', lastName: '' });
 
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': USER_TOKEN,
-                    },
-                });
+        dispatch(fetchUserProfile());
+        console.log(profile);
+    }, [dispatch]);
 
-                const data = await response.json();
-                setProfile({ firstName: data.body.firstName, lastName: data.body.lastName });
-                setFormValues({ firstName: data.body.firstName, lastName: data.body.lastName });
-            } catch (error: any) {
-                setError(error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    if (error) {
-        console.log('Oups, il y a une erreur');
-    }
-
-    if (isLoading){
-        return <div>Loading...</div>
-    }
+    useEffect(() => {
+        setFormValues(profile);
+        console.log(formValues)
+    }, [profile]);
 
     const handleEdit = () => {
-        setIsEditing(!isEditing);
+        dispatch(setIsEditing(!isEditing));
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        try {
-            const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': USER_TOKEN,
-                },
-                body: JSON.stringify(formValues),
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la mise à jour du profil');
-            }
-
-            const data = await response.json();
-            setProfile({ firstName: data.body.firstName, lastName: data.body.lastName });
-            setIsEditing(false);
-            console.log('Profil mis à jour avec succès :', data);
-        } catch (error: any) {
-            setError(error);
-        }
-    };
+        dispatch(updateUserProfile(formValues))
+    }
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -87,35 +38,45 @@ export function UserProfile() {
         });
     };
 
+    if (error) {
+        console.log('Oups, il y a une erreur');
+    }
+
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+
     return (
         <main className="main bg-dark">
             <div className="header">
                 <h1>Welcome back<br />{profile.firstName} {profile.lastName}!</h1>
-                <button className="edit__button" onClick={handleEdit}>Edit Name</button>
-                {isEditing && (
+                {isEditing ? (
                     <>
                         <form onSubmit={handleSubmit}>
-                            <label htmlFor="firstName">Prénom</label>
-                            <input
-                                type="text"
-                                id="firstName"
-                                name="firstName"
-                                value={formValues.firstName}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="lastName">Nom</label>
-                            <input
-                                type="text"
-                                id="lastName"
-                                name="lastName"
-                                value={formValues.lastName}
-                                onChange={handleChange}
-                            />
-                            <button type="submit">Save</button>
-                            <button type="button" onClick={handleEdit}>Cancel</button>
+                            <div className="form__row">
+                                <input
+                                    type="text"
+                                    id="firstName"
+                                    name="firstName"
+                                    placeholder={formValues.firstName}
+                                    onChange={handleChange}
+                                />
+                                <input
+                                    type="text"
+                                    id="lastName"
+                                    name="lastName"
+                                    placeholder={formValues.lastName}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="form__row">
+                                <button type="submit">Save</button>
+                                <button type="button" onClick={handleEdit}>Cancel</button>
+                            </div>
                         </form>
                     </>
-                )}
+                ) : <button className="edit__button" onClick={handleEdit}>Edit Name</button>
+                }
             </div>
             <h2 className="sr-only">Accounts</h2>
             <section className="account">

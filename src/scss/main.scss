@@ -279,6 +279,36 @@ body {
 .header {
     color: #fff;
     margin-bottom: 2rem;
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .form__row {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            justify-content: center;
+
+            input {
+                padding: 10px;
+                width: 150px;
+                border-radius: 3px;
+                font-weight: 500;
+            }
+
+            button {
+                padding: 5px 20px;
+                width: 100px;
+                color: #6C60F5;
+                border: solid 1px #6C60F5;
+                border-radius: 3px;
+                font-weight: 500;
+                font-size: 12px;
+            }
+        }
+    }
 }
 
 .transaction__button {
