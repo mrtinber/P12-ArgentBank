@@ -1,38 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../app/store";
+import { getUserToken, selectAuthToken } from "../features/userAuth/userAuthSlice";
+import { useNavigate } from "react-router-dom";
 
 export function SignIn() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [authValues, setAuthValues] = useState({email:'', password:''})
     const [error, setError] = useState<string | null>(null);
+    const token = useSelector(selectAuthToken);
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch<AppDispatch>();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log("submitted");
-        let token = '';
-
-        try {
-            const response = await fetch('http://localhost:3001/api/v1/user/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({email, password})
-            });
-            const data = await response.json()
-            if (response.ok) {
-                localStorage.setItem('token', data.body.token);
-                token = data.body.token;
-                window.location.href = '/profile';
-            } else {
-                setError(data.message || 'Invalid credentials');
-            }
-        } catch (error) {
-            setError('Oups')
-        } finally {
-            console.log("Token:", token)
-        }
+        dispatch(getUserToken(authValues));
     }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setAuthValues(prevValues => ({
+            ...prevValues,
+            [name]: value,
+        }));
+    };
+
+    useEffect(() => {
+        if (token) {
+            navigate('/profile');
+        }
+    }, [token, navigate]);
 
     return <main className="main bg-dark">
         <section className="signin__content">
@@ -41,11 +38,11 @@ export function SignIn() {
             <form onSubmit={handleSubmit}>
                 <div className="input__wrapper">
                     <label htmlFor="username">Username</label>
-                    <input type="text" id="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input type="text" id="username" name='email' value={authValues.email} onChange={handleChange} />
                 </div>
                 <div className="input__wrapper">
                     <label htmlFor="password">Password</label>
-                    <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <input type="password" id="password" name='password' value={authValues.password} onChange={handleChange} />
                 </div>
                 <div className="input__remember">
                     <input type="checkbox" id="remember-me" />

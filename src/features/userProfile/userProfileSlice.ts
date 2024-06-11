@@ -2,7 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { UserProfile } from "../../pages/UserProfile";
 import { RootState } from "../../app/store";
 
-const USER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjY2NDFmNTllYWIzMDhiMGViMWI4MiIsImlhdCI6MTcxODA4MDQxMSwiZXhwIjoxNzE4MTY2ODExfQ.gBTJ0PGhYcXVSAlkCyTnHbhnB1Zu54ikZPEz8hw_A5U';
+// const USER_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NjY2NDFmNTllYWIzMDhiMGViMWI4MiIsImlhdCI6MTcxODA4MDQxMSwiZXhwIjoxNzE4MTY2ODExfQ.gBTJ0PGhYcXVSAlkCyTnHbhnB1Zu54ikZPEz8hw_A5U';
 
 type UserProfile = {
     firstName: string,
@@ -25,14 +25,23 @@ const initialState: UserProfileState = {
 
 export const fetchUserProfile = createAsyncThunk(
     'userProfile/fetchUserProfile',
-    async (_, { rejectWithValue }) => {
+    async (_, { getState, rejectWithValue }) => {
+        const state = getState() as RootState;
+        console.log("le state:", state);
+        const USER_TOKEN = state.userAuth.token;
+        console.log("le token: ", USER_TOKEN);
+
+        if (!USER_TOKEN) {
+            return rejectWithValue('Token not found');
+        }
+
         try {
             const response = await fetch('http://localhost:3001/api/v1/user/profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'Authorization': USER_TOKEN,
+                    'Authorization': `Bearer ${USER_TOKEN}`,
                 },
             });
             const data = await response.json();
@@ -46,14 +55,21 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const updateUserProfile = createAsyncThunk(
     'userProfile/updateUserProfile',
-    async (formValues: UserProfile, { rejectWithValue }) => {
+    async (formValues: UserProfile, { getState, rejectWithValue }) => {
+        const state = getState() as RootState;
+        const USER_TOKEN = state.userAuth.token;
+
+        if (!USER_TOKEN) {
+            return rejectWithValue('Token not found');
+        }
+
         try {
             const response = await fetch('http://localhost:3001/api/v1/user/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'Authorization': USER_TOKEN,
+                    'Authorization': `Bearer ${USER_TOKEN}`,
                 },
                 body: JSON.stringify(formValues),
             });
