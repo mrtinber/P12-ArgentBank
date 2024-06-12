@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../app/store";
-import { getUserToken, selectAuthToken, selectIsLoggedIn } from "../features/userAuth/userAuthSlice";
+import { AppDispatch } from "../coreLogic/store/initReduxStore";
+import { getUserToken, selectAuthToken, selectIsLoggedIn, selectAuthError } from "../coreLogic/reducers/userAuthSlice";
 import { useNavigate } from "react-router-dom";
-import { selectError } from "../features/userProfile/userProfileSlice";
 
 export function SignIn() {
     const [authValues, setAuthValues] = useState({ email: '', password: '' })
-    const error = useSelector(selectError);
+    const error = useSelector(selectAuthError);
     const token = useSelector(selectAuthToken);
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();

@@ -1,9 +1,12 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../app/store";
-import { fetchUserProfile, selectError, selectIsEditing, selectIsLoading, selectUserProfile, setIsEditing, updateUserProfile } from "../features/userProfile/userProfileSlice";
-import { selectIsLoggedIn } from "../features/userAuth/userAuthSlice";
+import { AppDispatch } from "../coreLogic/store/initReduxStore";
+import { selectError, selectIsEditing, selectIsLoading, selectUserProfile, setIsEditing } from "../coreLogic/reducers/userProfileSlice";
+import { selectIsLoggedIn } from "../coreLogic/reducers/userAuthSlice";
 import { NavLink } from "react-router-dom";
+import { fetchUserProfile } from "../coreLogic/useCases/fetchUserProfile";
+import { updateUserProfile } from "../coreLogic/useCases/updateUserProfile";
+import { AccountElement } from "../components/AccountElement";
 
 export function UserProfile() {
     const dispatch = useDispatch<AppDispatch>();
@@ -16,12 +19,10 @@ export function UserProfile() {
 
     useEffect(() => {
         dispatch(fetchUserProfile());
-        console.log(profile);
     }, [dispatch]);
 
     useEffect(() => {
         setFormValues(profile);
-        console.log(formValues)
     }, [profile]);
 
     const handleEdit = () => {
@@ -49,9 +50,10 @@ export function UserProfile() {
         return <div>Loading...</div>
     }
 
-    if(isLoggedIn === false){
+    if (!isLoggedIn) {
         return <div>Veuillez <NavLink to='/sign-in'>vous connecter</NavLink></div>
     }
+    //verifier si le token est stocké dans le localstorage 
 
     return (
         <main className="main bg-dark">
@@ -86,36 +88,9 @@ export function UserProfile() {
                 }
             </div>
             <h2 className="sr-only">Accounts</h2>
-            <section className="account">
-                <div className="account__content">
-                    <h3 className="account__content__title">Argent Bank Checking (x8349)</h3>
-                    <p className="account__content__amount">$2,082.79</p>
-                    <p className="account__content__amount__description">Available Balance</p>
-                </div>
-                <div className="account__content cta">
-                    <button className="transaction__button">View transactions</button>
-                </div>
-            </section>
-            <section className="account">
-                <div className="account__content">
-                    <h3 className="account__content__title">Argent Bank Savings (x6712)</h3>
-                    <p className="account__content__amount">$10,928.42</p>
-                    <p className="account__content__amount__description">Available Balance</p>
-                </div>
-                <div className="account__content cta">
-                    <button className="transaction__button">View transactions</button>
-                </div>
-            </section>
-            <section className="account">
-                <div className="account__content">
-                    <h3 className="account__content__title">Argent Bank Credit Card (x8349)</h3>
-                    <p className="account__content__amount">$184.30</p>
-                    <p className="account__content__amount__description">Current Balance</p>
-                </div>
-                <div className="account__content cta">
-                    <button className="transaction__button">View transactions</button>
-                </div>
-            </section>
+            <AccountElement title='Argent Bank Checking (x8349)' amount='$2,082.79' description="Available Balance" />
+            <AccountElement title='Argent Bank Savings (x6712)' amount='$10,928.42' description="Available Balance" />
+            <AccountElement title='Argent Bank Credit Card (x8349)' amount='$184.30' description="Current Balance" />
         </main>
     );
 }

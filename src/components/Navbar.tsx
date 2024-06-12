@@ -1,8 +1,8 @@
 import argentBankLogo from '../assets/argentBankLogo.png'
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUserProfile } from '../features/userProfile/userProfileSlice';
-import { selectIsLoggedIn, setIsLoggedIn, setToken } from '../features/userAuth/userAuthSlice';
-import { AppDispatch } from '../app/store';
+import { selectUserProfile } from '../coreLogic/reducers/userProfileSlice';
+import { selectIsLoggedIn, setIsLoggedIn, setToken } from '../coreLogic/reducers/userAuthSlice';
+import { AppDispatch } from '../coreLogic/store/initReduxStore';
 import { Link, NavLink } from 'react-router-dom';
 
 export function Navbar() {
@@ -11,12 +11,12 @@ export function Navbar() {
     const dispatch = useDispatch<AppDispatch>()
 
     const handleLogOut = () => {
-        dispatch(setIsLoggedIn(false));
-        dispatch(setToken(''));
+        dispatch(setIsLoggedIn(false)); // Pas utile?
+        dispatch(setToken('')); // si vide alors setisloggedin = false
+        // localstorage 
 
         // Effacement des données du stockage local
         localStorage.clear();
-        sessionStorage.clear();
     };
 
     return <>

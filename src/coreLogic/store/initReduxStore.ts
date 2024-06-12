@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
-import { userProfileSlice } from "../features/userProfile/userProfileSlice";
-import { userAuthSlice } from "../features/userAuth/userAuthSlice";
+import { userProfileSlice } from "../reducers/userProfileSlice";
+import { userAuthSlice } from "../reducers/userAuthSlice";
 
 export const initReduxStore = configureStore({
     reducer: combineReducers({

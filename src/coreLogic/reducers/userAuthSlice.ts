@@ -1,11 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
-
-type userAuthState = {
-    token: string,
-    isLoggedIn: boolean,
-    error: string | null,
-}
+import { RootState } from "../store/initReduxStore";
+import { userAuthState } from "../models/userAuthState";
 
 const initialState: userAuthState = {
     token: '',
