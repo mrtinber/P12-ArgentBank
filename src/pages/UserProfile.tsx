@@ -2,6 +2,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../app/store";
 import { fetchUserProfile, selectError, selectIsEditing, selectIsLoading, selectUserProfile, setIsEditing, updateUserProfile } from "../features/userProfile/userProfileSlice";
+import { selectIsLoggedIn } from "../features/userAuth/userAuthSlice";
+import { NavLink } from "react-router-dom";
 
 export function UserProfile() {
     const dispatch = useDispatch<AppDispatch>();
@@ -10,6 +12,7 @@ export function UserProfile() {
     const error = useSelector(selectError);
     const isEditing = useSelector(selectIsEditing);
     const [formValues, setFormValues] = useState({ firstName: '', lastName: '' });
+    const isLoggedIn = useSelector(selectIsLoggedIn);
 
     useEffect(() => {
         dispatch(fetchUserProfile());
@@ -44,6 +47,10 @@ export function UserProfile() {
 
     if (isLoading) {
         return <div>Loading...</div>
+    }
+
+    if(isLoggedIn === false){
+        return <div>Veuillez <NavLink to='/sign-in'>vous connecter</NavLink></div>
     }
 
     return (

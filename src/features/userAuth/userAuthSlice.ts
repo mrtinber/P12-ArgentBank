@@ -1,12 +1,16 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
 type userAuthState = {
     token: string,
+    isLoggedIn: boolean,
+    error: string | null,
 }
 
 const initialState: userAuthState = {
     token: '',
+    isLoggedIn: false,
+    error: null,
 }
 
 export const getUserToken = createAsyncThunk(
@@ -23,6 +27,9 @@ export const getUserToken = createAsyncThunk(
                 body: JSON.stringify({ email, password }),
             });
             const data = await response.json();
+            if (!response.ok) {
+                return rejectWithValue(data.message || 'Failed to login');
+            }
             return { token: data.body.token };
         } catch (error: any) {
             return rejectWithValue(error.toString());
@@ -39,15 +46,25 @@ export const userAuthSlice = createSlice({
     reducers: {
         setToken(state, action) {
             state.token = action.payload;
+        },
+        setIsLoggedIn(state, action) {
+            state.isLoggedIn = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder.addCase(getUserToken.fulfilled, (state, action) => {
             state.token = action.payload.token;
+            state.isLoggedIn = true;
+        })
+        builder.addCase(getUserToken.rejected, (state, action: PayloadAction<any>) => {
+            state.error = action.payload
         })
     },
 })
 
 export const { setToken } = userAuthSlice.actions;
+export const { setIsLoggedIn } = userAuthSlice.actions;
 
-export const selectAuthToken = (state: RootState) => state.userAuth.token; 
+export const selectAuthToken = (state: RootState) => state.userAuth.token;
+export const selectIsLoggedIn = (state: RootState) => state.userAuth.isLoggedIn;
+export const selectAuthError = (state: RootState) => state.userAuth.error;

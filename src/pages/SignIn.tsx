@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../app/store";
-import { getUserToken, selectAuthToken } from "../features/userAuth/userAuthSlice";
+import { getUserToken, selectAuthToken, selectIsLoggedIn } from "../features/userAuth/userAuthSlice";
 import { useNavigate } from "react-router-dom";
+import { selectError } from "../features/userProfile/userProfileSlice";
 
 export function SignIn() {
-    const [authValues, setAuthValues] = useState({email:'', password:''})
-    const [error, setError] = useState<string | null>(null);
+    const [authValues, setAuthValues] = useState({ email: '', password: '' })
+    const error = useSelector(selectError);
     const token = useSelector(selectAuthToken);
     const navigate = useNavigate();
-
     const dispatch = useDispatch<AppDispatch>();
+    const isLoggedIn = useSelector(selectIsLoggedIn);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        dispatch(getUserToken(authValues));
+        try {
+            await dispatch(getUserToken(authValues)).unwrap();
+        } catch (err: any) {
+            console.error(err)
+        }
     }
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +31,10 @@ export function SignIn() {
     };
 
     useEffect(() => {
-        if (token) {
+        if (token && isLoggedIn) {
             navigate('/profile');
         }
-    }, [token, navigate]);
+    }, [token, isLoggedIn, navigate]);
 
     return <main className="main bg-dark">
         <section className="signin__content">

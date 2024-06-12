@@ -100,7 +100,7 @@ export const userProfileSlice = createSlice({
         });
         builder.addCase(fetchUserProfile.rejected, (state, action) => {
             state.isLoading = false;
-            state.error = action.error.message || null;
+            state.error = action.payload as string;
         })
         builder.addCase(updateUserProfile.pending, (state) => {
             state.isLoading = true;
@@ -111,9 +111,9 @@ export const userProfileSlice = createSlice({
             state.isLoading = false;
             state.isEditing = false;
         });
-        builder.addCase(updateUserProfile.rejected, (state, action: any) => {
+        builder.addCase(updateUserProfile.rejected, (state, action) => {
             state.isLoading = false;
-            state.error = action.payload.message;
+            state.error = action.payload as string;
         });
     }
 })
