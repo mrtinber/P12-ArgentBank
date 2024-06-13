@@ -2,7 +2,6 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../coreLogic/store/initReduxStore";
 import { selectError, selectIsEditing, selectIsLoading, selectUserProfile, setIsEditing } from "../coreLogic/reducers/userProfileSlice";
-import { selectIsLoggedIn } from "../coreLogic/reducers/userAuthSlice";
 import { NavLink } from "react-router-dom";
 import { fetchUserProfile } from "../coreLogic/useCases/fetchUserProfile";
 import { updateUserProfile } from "../coreLogic/useCases/updateUserProfile";
@@ -15,7 +14,7 @@ export function UserProfile() {
     const error = useSelector(selectError);
     const isEditing = useSelector(selectIsEditing);
     const [formValues, setFormValues] = useState({ firstName: '', lastName: '' });
-    const isLoggedIn = useSelector(selectIsLoggedIn);
+    const storedToken = sessionStorage.getItem('token');
 
     useEffect(() => {
         dispatch(fetchUserProfile());
@@ -43,17 +42,16 @@ export function UserProfile() {
     };
 
     if (error) {
-        console.log('Oups, il y a une erreur');
+        console.log('Oups, il y a une erreur:', error);
     }
 
     if (isLoading) {
         return <div>Loading...</div>
     }
 
-    if (!isLoggedIn) {
+    if (!storedToken) {
         return <div>Veuillez <NavLink to='/sign-in'>vous connecter</NavLink></div>
     }
-    //verifier si le token est stocké dans le localstorage 
 
     return (
         <main className="main bg-dark">

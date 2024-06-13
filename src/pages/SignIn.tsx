@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../coreLogic/store/initReduxStore";
-import { getUserToken, selectAuthToken, selectIsLoggedIn, selectAuthError } from "../coreLogic/reducers/userAuthSlice";
+import { selectAuthToken, selectIsLoggedIn, selectAuthError } from "../coreLogic/reducers/userAuthSlice";
 import { useNavigate } from "react-router-dom";
+import { getUserToken } from "../coreLogic/useCases/getUserToken";
+import { clearError } from "../coreLogic/reducers/userProfileSlice";
 
 export function SignIn() {
     const [authValues, setAuthValues] = useState({ email: '', password: '' })
@@ -14,6 +16,7 @@ export function SignIn() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        dispatch(clearError());
         try {
             await dispatch(getUserToken(authValues)).unwrap();
         } catch (err: any) {

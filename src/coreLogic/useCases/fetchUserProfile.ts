@@ -1,11 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { RootState } from "../store/initReduxStore";
 
 export const fetchUserProfile = createAsyncThunk(
     'userProfile/fetchUserProfile',
-    async (_, { getState, rejectWithValue }) => {
-        const state = getState() as RootState;
-        const USER_TOKEN = state.userAuth.token;
+    async (_, { rejectWithValue }) => {
+        const USER_TOKEN = sessionStorage.getItem('token')
 
         if (!USER_TOKEN) {
             return rejectWithValue('Token not found');

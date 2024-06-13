@@ -17,6 +17,9 @@ export const userProfileSlice = createSlice({
     reducers: {
         setIsEditing(state, action: PayloadAction<boolean>) {
             state.isEditing = action.payload;
+        }, 
+        clearError(state) {
+            state.error = null
         }
     },
     extraReducers: (builder) => {
@@ -52,7 +55,7 @@ export const userProfileSlice = createSlice({
     }
 })
 
-export const { setIsEditing } = userProfileSlice.actions;
+export const { setIsEditing, clearError } = userProfileSlice.actions;
 
 export const selectUserProfile = (state: RootState) => state.userProfile.profile;
 export const selectIsLoading = (state: RootState) => state.userProfile.isLoading;
