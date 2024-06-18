@@ -7,7 +7,8 @@ import { getUserToken } from "../coreLogic/useCases/getUserToken";
 import { clearError } from "../coreLogic/reducers/userProfileSlice";
 
 export function SignIn() {
-    const [authValues, setAuthValues] = useState({ email: '', password: '' })
+    const [authValues, setAuthValues] = useState({ email: '', password: '' });
+    const [isChecked, setIsChecked] = useState(false);
     const error = useSelector(selectAuthError);
     const token = useSelector(selectAuthToken);
     const navigate = useNavigate();
@@ -38,6 +39,27 @@ export function SignIn() {
         }
     }, [token, isLoggedIn, navigate]);
 
+    const handleCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked){
+            localStorage.setItem('email', authValues.email);
+            localStorage.setItem('password', authValues.password);
+            setIsChecked(true);
+        } else {
+            localStorage.removeItem('email');
+            localStorage.removeItem('password');
+            setIsChecked(false);
+        }
+    }
+
+    useEffect(() => {
+        const storedEmail = localStorage.getItem('email');
+        const storedPassword = localStorage.getItem('password');
+        if (storedEmail && storedPassword) {
+            setAuthValues({ email: storedEmail, password: storedPassword });
+            setIsChecked(true);
+        }
+    }, []);    
+
     return <main className="main bg-dark">
         <section className="signin__content">
             <i className="fa fa-user-circle signin__icon"></i>
@@ -52,7 +74,7 @@ export function SignIn() {
                     <input type="password" id="password" name='password' value={authValues.password} onChange={handleChange} />
                 </div>
                 <div className="input__remember">
-                    <input type="checkbox" id="remember-me" />
+                    <input type="checkbox" id="remember-me" onChange={handleCheckbox} checked={isChecked}/>
                     <label htmlFor="remember-me">Remember me</label>
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
