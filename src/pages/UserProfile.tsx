@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { fetchUserProfile } from "../coreLogic/useCases/fetchUserProfile";
 import { updateUserProfile } from "../coreLogic/useCases/updateUserProfile";
 import { AccountElement } from "../components/AccountElement";
+import { selectAuthToken } from "../coreLogic/reducers/userAuthSlice";
 
 export function UserProfile() {
     const dispatch = useDispatch<AppDispatch>();
@@ -14,7 +15,7 @@ export function UserProfile() {
     const error = useSelector(selectError);
     const isEditing = useSelector(selectIsEditing);
     const [formValues, setFormValues] = useState({ firstName: '', lastName: '' });
-    const storedToken = sessionStorage.getItem('token');
+    const storedToken = useSelector(selectAuthToken);
 
     useEffect(() => {
         dispatch(fetchUserProfile());

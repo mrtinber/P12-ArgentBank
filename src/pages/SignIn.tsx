@@ -42,20 +42,17 @@ export function SignIn() {
     const handleCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked){
             localStorage.setItem('email', authValues.email);
-            localStorage.setItem('password', authValues.password);
             setIsChecked(true);
         } else {
             localStorage.removeItem('email');
-            localStorage.removeItem('password');
             setIsChecked(false);
         }
     }
 
     useEffect(() => {
         const storedEmail = localStorage.getItem('email');
-        const storedPassword = localStorage.getItem('password');
-        if (storedEmail && storedPassword) {
-            setAuthValues({ email: storedEmail, password: storedPassword });
+        if (storedEmail) {
+            setAuthValues({ email: storedEmail, password: '' });
             setIsChecked(true);
         }
     }, []);    
